@@ -25,7 +25,12 @@ connectToMongoDB.once("open", () => {
 });
 const app: Express = express();
 const port = process.env.PORT || 8080;
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://65.0.55.141",
+    credentials: true,
+  })
+);
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
