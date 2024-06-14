@@ -24,7 +24,7 @@ connectToMongoDB.once("open", () => {
   console.log("Connected to MongoDB");
 });
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 app.use(cors());
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
