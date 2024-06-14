@@ -14,10 +14,9 @@ const uploadImageToS3 = async (imageBuffer: any, options: any) => {
   const key = uuidv4() + ".jpeg";
   const uploadParams = {
     Bucket: bucketName,
-    Key: key,
     Body: imageBuffer,
     ContentType: options.contentType,
-    path: options.path,
+    Key: options.path + key,
   };
   const command = new PutObjectCommand(uploadParams);
   await s3.send(command);
@@ -73,7 +72,7 @@ export const Createvideos = async (req: any, res: Response) => {
 
       const s3UploadResult = await uploadImageToS3(compressedImageBuffer, {
         contentType: "image/jpeg",
-        path: "thumbnail_ott/",
+        path: "thumbnail_ott/compressed/",
       });
 
       processedImages[quality] = {
@@ -146,7 +145,7 @@ export const CreateBannervideos = async (req: any, res: Response) => {
 
       const s3UploadResult = await uploadImageToS3(compressedImageBuffer, {
         contentType: "image/jpeg",
-        path: "thumbnail_ott/",
+        path: "thumbnail_ott/compressed/",
       });
 
       processedImages[quality] = {

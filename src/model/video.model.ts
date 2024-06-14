@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
+
 export interface IVideo extends Document {
   title: string;
   description: string;
@@ -11,6 +12,7 @@ export interface IVideo extends Document {
   status?: boolean;
   duration?: string;
   likes?: number;
+  certification?: string;
   category?: string[];
   viewsId?: [Types.ObjectId];
   likesId?: [Types.ObjectId];
@@ -30,6 +32,10 @@ const videoSchema: Schema = new Schema(
     description: {
       type: String,
       required: true,
+    },
+    certification: {
+      type: String,
+      default: "U",
     },
     thumbnail: String,
     preview_video: String,
