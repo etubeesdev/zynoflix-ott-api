@@ -5,7 +5,6 @@ import cors from "cors";
 import routor from "./routes/router";
 dotenv.config();
 
-
 const MONGODB_URI =
   "mongodb+srv://gokul:UPw3fCb6kDmF5CsE@cluster0.klfb9oe.mongodb.net/ott?retryWrites=true&w=majority";
 mongoose.connect(MONGODB_URI, {

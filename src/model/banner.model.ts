@@ -31,3 +31,9 @@ const bannerSchema: Schema = new Schema(
 const BannerModel = mongoose.model<IBanner>("Banner", bannerSchema);
 
 export default BannerModel;
+
+
+
+
+
+
