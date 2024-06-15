@@ -1,9 +1,10 @@
 import express, { Express, Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../model/user.model";
 import { Session } from "../model/token.model";
 import FollowerModel from "../model/follower.model";
+import { ProductionCompany } from "../model/production.model";
 
 export const allUsers = (req: Request, res: Response): void => {
   try {
@@ -206,6 +207,180 @@ export const getUserById = async (
 
     res.status(200).json({ user });
   } catch (error: any) {
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+// PUT update a value for normal user profilePic and back pic
+export const updateUser = async (req: any, res: Response): Promise<void> => {
+  try {
+    const { user_id } = req.params;
+    const { full_name, description } = req.body;
+    console.log(user_id);
+
+    const accessToken = req.headers.authorization.split(" ")[1];
+
+    const secret = process.env.JWT_SECRET || "demo";
+    const decoded = jwt.verify(accessToken, secret) as JwtPayload;
+
+    if (decoded.userId !== user_id) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findById(user_id);
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    if (req.files["profilePic"]) {
+      const profilePic = req.files["profilePic"][0].location;
+      user.profilePic = profilePic;
+    }
+
+    if (req.files["backgroundPic"]) {
+      const backgroundImage = req.files["backgroundPic"][0].location;
+      user.backgroundPic = backgroundImage;
+    }
+
+    if (full_name) {
+      user.full_name = full_name;
+    }
+
+    if (description) {
+      user.description = description;
+    }
+
+    await user.save();
+    res.status(200).json({ user });
+  } catch (error: any) {
+    console.log(error);
+
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+//  PRODUCTION LOGIN
+export const CreateProductionCompany = async (req: any, res: Response) => {
+  try {
+    const logo = req.files["logo"][0].location;
+    const newProductionCompany = await ProductionCompany.create({
+      name: req.body.name,
+      founderName: req.body.founderName,
+      about: req.body.about,
+      email: req.body.email,
+      contactNumber: req.body.contactNumber,
+      password: req.body.password,
+      logo: logo,
+    });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: newProductionCompany.id },
+      process.env.JWT_SECRET || "demo",
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    // Create session
+    const newSession = await Session.create({
+      userId: newProductionCompany.id,
+      accessToken: token,
+    });
+
+    if (newSession) {
+      res
+        .status(201)
+        .json({
+          accessToken: token,
+          message: "User created",
+          userId: newProductionCompany.id,
+        });
+    } else {
+      throw new Error("Failed to create session");
+    }
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const getProductCompany = async (req: Request, res: Response) => {
+  try {
+    const productionCompany = await ProductionCompany.find({});
+    res.status(200).json({ productionCompany });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+// get by id
+export const getProductionCompanyById = async (req: Request, res: Response) => {
+  try {
+    const productionCompany = await ProductionCompany.findById(
+      req.params.user_id
+    );
+    res.status(200).json({ productionCompany });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+// PUT for upload and change production company logo or any other details
+export const updateProductionCompany = async (req: any, res: Response) => {
+  try {
+    const productionCompany = await ProductionCompany.findById(
+      req.params.user_id
+    );
+
+    if (!productionCompany) {
+      return res.status(404).json({ error: "Production company not found" });
+    }
+
+    if (req.files["logo"]) {
+      const logo = req.files["logo"][0].location;
+      productionCompany.logo = logo;
+    }
+
+    if (req.files["backgroundImage"]) {
+      const backgroundImage = req.files["backgroundImage"][0].location;
+      productionCompany.backgroundImage = backgroundImage;
+    }
+
+    if (req.body.name) {
+      productionCompany.name = req.body.name;
+    }
+
+    if (req.body.founderName) {
+      productionCompany.founderName = req.body.founderName;
+    }
+
+    if (req.body.about) {
+      productionCompany.about = req.body.about;
+    }
+
+    if (req.body.email) {
+      productionCompany.email = req.body.email;
+    }
+
+    if (req.body.contactNumber) {
+      productionCompany.contactNumber = req.body.contactNumber;
+    }
+
+    if (req.body.password) {
+      productionCompany.password = req.body.password;
+    }
+
+    await productionCompany.save();
+
+    res.status(200).json({ productionCompany });
+  } catch (error: any) {
+    console.log(error);
     res.status(500).json({ error: "Something went wrong!" });
   }
 };

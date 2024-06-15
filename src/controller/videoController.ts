@@ -8,6 +8,7 @@ import { bucketName, s3 } from "../service/db/s3/s3";
 import BannerModel from "../model/banner.model";
 import ViewModel from "../model/view.model";
 import LikeModel from "../model/like.model";
+import { ProductionCompany } from "../model/production.model";
 
 // Function to upload image to S3 after resizing
 const uploadImageToS3 = async (imageBuffer: any, options: any) => {
@@ -528,3 +529,4 @@ export const getCategories = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Something went wrong!" });
   }
 };
+

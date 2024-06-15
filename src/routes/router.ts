@@ -7,6 +7,10 @@ import {
   getUserById,
   loginUser,
   logoutUser,
+  getProductCompany,
+  getProductionCompanyById,
+  updateUser,
+  CreateProductionCompany,
 } from "../controller/userController";
 import {
   BannerVideoFromAdmin,
@@ -42,6 +46,28 @@ router.get("/auth/user/:user_id", getUserById);
 router.post("/auth/signup", createUser);
 router.post("/auth/login", loginUser);
 router.get("/auth/logout", logoutUser);
+
+const cpUpdateUser = upload.fields([
+  { name: "profilePic", maxCount: 1 },
+  { name: "backgroundPic", maxCount: 1 },
+]);
+
+router.put("/auth/user/:user_id", cpUpdateUser, updateUser);
+
+// Production User
+const cpUploadUser = upload.fields([{ name: "logo", maxCount: 1 }]);
+const cpUploadBackground = upload.fields([
+  { name: "backgroundImage", maxCount: 1 },
+  { name: "logo", maxCount: 1 },
+]);
+router.post("/auth/production/signup", cpUploadUser, CreateProductionCompany);
+router.get("/auth/production/user", getProductCompany);
+router.get("/auth/production/user/:user_id", getProductionCompanyById);
+router.put(
+  "/auth/production/user/:user_id",
+  cpUploadBackground,
+  getProductionCompanyById
+);
 
 // upload video
 const cpUpload = upload.fields([
