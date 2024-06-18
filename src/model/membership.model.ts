@@ -7,41 +7,50 @@ export interface IMembership extends Document {
   amount: number;
   transactionId: string;
   paymentMethod?: string;
-  paymentStatus?: string;
+  isVideo_uploaded: boolean;
+  paymentStatus: "pending" | "success" | "failed" | "cancelled";
   order: object;
 }
 
-const membershipSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
+const membershipSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: String,
+      required: true,
+    },
+    membershipType: {
+      type: String,
+      default: "monthly",
+    },
+    paymentDate: {
+      type: Date,
+      default: Date.now,
+    },
+    isVideo_uploaded: {
+      type: Boolean,
+      default: false,
+    },
+    paymentStatus: {
+      type: String,
+      default: "pending",
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    transactionId: {
+      type: String,
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      default: "card",
+    },
   },
-  membershipType: {
-    type: String,
-    default: "monthly",
-  },
-  paymentDate: {
-    type: Date,
-    default: Date.now,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-  transactionId: {
-    type: String,
-    required: true,
-  },
-  paymentMethod: {
-    type: String,
-    default: "card",
-  },
-  paymentStatus: {
-    type: String,
-    default: "pending",
-  },
-  object: Object,
-});
+  {
+    timestamps: true,
+  }
+);
 
 const MembershipModel = mongoose.model<IMembership>(
   "Membership",

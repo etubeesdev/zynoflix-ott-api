@@ -3,6 +3,7 @@ import MembershipModel from "../model/membership.model";
 import { IUserProfile, User } from "../model/user.model";
 
 const Razorpay = require("razorpay");
+
 export const monthlySub = async (req: any, res: Response) => {
   const { amount, currency } = req.body;
 
@@ -22,12 +23,21 @@ export const monthlySub = async (req: any, res: Response) => {
     const orderRazo = await razorpayInstance.orders.create(options);
 
     const order = await MembershipModel.create({
-      userId: req.userId,
+      user_id: req.userId,
       amount: options.amount,
       transactionId: orderRazo.id,
       order: orderRazo,
     });
     await order.save();
+
+    const user: any = await User.findById(req.userId);
+
+    user.membership === "active";
+    user.membershipId = order._id;
+    user.isMembership = true;
+
+    await user.save();
+
     res.status(200).json({ order });
   } catch (error: any) {
     console.log(error);
@@ -37,7 +47,9 @@ export const monthlySub = async (req: any, res: Response) => {
 
 export const getMonthlySub = async (req: any, res: Response) => {
   try {
-    const order = await MembershipModel.findById(req.params.id);
+    const order = await MembershipModel.find({
+      user_id: req.userId,
+    });
     res.status(200).json({ order });
   } catch (error: any) {
     console.log(error);
@@ -49,6 +61,7 @@ export const getMonthlySub = async (req: any, res: Response) => {
 export const updateMonthlySub = async (req: any, res: Response) => {
   try {
     const user_id = req.userId;
+    const { status, isVideo_uploaded } = req.body;
     const order: any = await MembershipModel.findById(req.params.id);
 
     if (order.paymentStatus === "success") {
@@ -56,21 +69,58 @@ export const updateMonthlySub = async (req: any, res: Response) => {
       return;
     }
 
-    if (order.userId !== user_id) {
+    if (order.user_id !== user_id) {
       res
         .status(400)
         .json({ error: "You are not authorized to update this order!" });
       return;
     }
 
-    order.paymentStatus = "success";
+    order.paymentStatus = status;
+    if (isVideo_uploaded) {
+      order.isVideo_uploaded = isVideo_uploaded;
+    }
     await order.save();
 
     const user: IUserProfile | any = await User.findById(user_id);
     user.membership = "active";
     await user.save();
 
-    res.status(200).json({ order });
+    res.status(200).json({ order, status: "success" });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const uploadVideoCount = async (req: any, res: Response) => {
+  try {
+    const user_id = req.userId;
+    const order: any = await MembershipModel.findOne({ userId: user_id });
+
+    if (!order) {
+      res.status(400).json({ error: "No order found!" });
+      return;
+    }
+    if (order.paymentStatus !== "success") {
+      res.status(400).json({ error: "Payment not done!" });
+      return;
+    }
+
+    if (order.isVideo_uploaded) {
+      res.status(400).json({ error: "Video already uploaded!" });
+      return;
+    }
+
+    if (order.isVideo_uploaded) {
+      res.status(400).json({ error: "Video already uploaded!" });
+      return;
+    }
+
+    order.isVideo_uploaded = true;
+    await order.save();
+
+    res.status(200).json({ order, status: "success" });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ error: "Something went wrong!" });

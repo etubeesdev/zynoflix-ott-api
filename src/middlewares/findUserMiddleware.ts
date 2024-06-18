@@ -20,7 +20,7 @@ export const authMiddleware = (req: any, res: Response, next: NextFunction) => {
   try {
     const secret = process.env.JWT_SECRET || "demo";
     const decoded = jwt.verify(token, secret) as JwtPayload;
-    req.userId = decoded.userId; // Attach userId to request object
+    req.userId = decoded.userId; // Add userId to request object
     next();
   } catch (error) {
     res.status(400).json({ error: "Invalid token." });

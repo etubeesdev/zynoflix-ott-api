@@ -43,6 +43,7 @@ export const Createvideos = async (req: any, res: Response) => {
       duration,
       category,
       is_feature_video,
+      user,
       created_by_id,
       created_by_name,
     } = req.body;
@@ -92,6 +93,7 @@ export const Createvideos = async (req: any, res: Response) => {
       preview_video,
       original_video,
       language,
+      user,
       status,
       duration,
       category,
@@ -183,7 +185,11 @@ export const CreateBannervideos = async (req: any, res: Response) => {
 // Get all videos
 export const allVideos = async (req: Request, res: Response) => {
   try {
-    const videos = await VideoModel.find({}).populate("viewsId");
+    const videos = await VideoModel.find({})
+      .populate("viewsId")
+      .populate("likesId")
+      .populate("user");
+
     res.status(200).json({ videos });
   } catch (error: any) {
     console.log(error);
@@ -199,6 +205,22 @@ export const findVideoById = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const findVideoByUserId = async (req: any, res: Response) => {
+  try {
+    const video = await VideoModel.find({
+      created_by_id: req.userId,
+    })
+      .populate("viewsId")
+      .populate("likesId")
+      .populate("user");
+
+    res.status(200).json({ video });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ error: error });
   }
 };
 
@@ -529,4 +551,3 @@ export const getCategories = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Something went wrong!" });
   }
 };
-

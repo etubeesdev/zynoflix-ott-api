@@ -10,6 +10,7 @@ interface IUserProfile extends Document {
   followingId?: Types.ObjectId[];
   backgroundPic?: string;
   description?: string;
+  membershipId?: Types.ObjectId;
   is_active: boolean;
   isMembership?: boolean;
   membership?: string;
@@ -37,6 +38,7 @@ const UserProfileSchema = new Schema<IUserProfile>(
     following: Number,
     membership: { type: String, default: "free" },
     isMembership: { type: Boolean, default: false },
+    membershipId: { type: Schema.Types.ObjectId, ref: "membership" },
     is_active: { type: Boolean, default: true },
   },
   { timestamps: true }

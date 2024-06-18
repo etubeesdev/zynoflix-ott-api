@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import routor from "./routes/router";
+import Chat from "./Chat";
 dotenv.config();
 
 const MONGODB_URI =
@@ -23,6 +24,8 @@ connectToMongoDB.on(
 connectToMongoDB.once("open", () => {
   console.log("Connected to MongoDB");
 });
+
+Chat();
 const app: Express = express();
 const port = process.env.PORT || 8080;
 app.use(

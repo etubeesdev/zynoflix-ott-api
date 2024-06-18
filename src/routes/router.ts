@@ -11,7 +11,7 @@ import {
   getProductionCompanyById,
   updateUser,
   CreateProductionCompany,
-} from "../controller/userController";
+} from "../controllers/userController";
 import {
   BannerVideoFromAdmin,
   CreateBannervideos,
@@ -22,21 +22,28 @@ import {
   bannerVideo,
   findVideoById,
   findVideoByLanguage,
+  findVideoByUserId,
   getCategories,
   getLikes,
   postVideoLike,
   postVideoViews,
   searchVideo,
-} from "../controller/videoController";
+} from "../controllers/videoController";
 import { upload } from "../service/db/s3/s3";
 import { authMiddleware } from "../middlewares/findUserMiddleware";
 import {
   getMonthlySub,
   monthlySub,
   updateMonthlySub,
-} from "../controller/monthlySubController";
-import { activeAds, createAds, getAds } from "../controller/adsController";
-import { getWatchLater, watchLater } from "../controller/watchController";
+  uploadVideoCount,
+} from "../controllers/monthlySubController";
+import { activeAds, createAds, getAds } from "../controllers/adsController";
+import { getWatchLater, watchLater } from "../controllers/watchController";
+import {
+  createRoom,
+  getMessageById,
+  getRoom,
+} from "../controllers/roomController";
 
 const router = express.Router();
 
@@ -84,6 +91,7 @@ const cpUploadBanner = upload.fields([
 router.post("/create_videos", cpUpload, Createvideos);
 router.post("/create/banner-video", cpUploadBanner, CreateBannervideos);
 router.get("/video/:video_id", findVideoById);
+router.get("/profile/video", authMiddleware, findVideoByUserId);
 router.get("/videos", allVideos);
 router.get("/banner", bannerVideo);
 router.post("/banner/active/:video_id", activeBanner);
@@ -102,8 +110,9 @@ router.get("/video/like/:video_id", authMiddleware, getLikes);
 
 // Payment
 router.post("/payment", authMiddleware, monthlySub);
-router.get("/payment/:id", authMiddleware, getMonthlySub);
+router.get("/payment", authMiddleware, getMonthlySub);
 router.put("/payment/:id", authMiddleware, updateMonthlySub);
+router.put("/payment/video/:id", authMiddleware, uploadVideoCount);
 
 // Follower
 router.post("/follow/:user_id", authMiddleware, followUser);
@@ -118,4 +127,12 @@ router.put("/ads/active/:id", activeAds);
 // Watch Later
 router.post("/watch-later/:video_id", authMiddleware, watchLater);
 router.get("/watch-later", authMiddleware, getWatchLater);
+
+// Chat
+router.get("/chat", getRoom);
+router.get("/chat/:roomId", getRoom);
+router.get("/message/:roomId", getMessageById);
+
+router.post("/room", createRoom);
+
 export default router;

@@ -25,7 +25,10 @@ const ProductionCompanySchema: Schema = new Schema(
     contactNumber: { type: String },
     password: { type: String },
     logo: { type: String },
-    backgroundImage: { type: String },
+    backgroundImage: {
+      type: String,
+      default: "https://via.placeholder.com/150",
+    },
     membership: { type: String, default: "free" },
     isMembership: { type: Boolean, default: false },
     is_active: { type: Boolean, default: true },
