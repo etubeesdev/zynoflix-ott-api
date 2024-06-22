@@ -21,7 +21,7 @@ const getRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const userId = req.userId;
         const rooms = yield room_model_1.default.find({
             userIds: { $in: [userId] },
-        });
+        }).sort({ updatedAt: -1 });
         if (!rooms) {
             return res.status(404).json({ message: "Room not found" });
         }

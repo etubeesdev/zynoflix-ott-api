@@ -5,6 +5,7 @@ import { User } from "../model/user.model";
 import { Session } from "../model/token.model";
 import FollowerModel from "../model/follower.model";
 import { ProductionCompany } from "../model/production.model";
+import VideoModel from "../model/video.model";
 
 export const allUsers = (req: Request, res: Response): void => {
   try {
@@ -72,7 +73,48 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      res.status(200).json({ error: "User not found" });
+      const productionCompany: any = await ProductionCompany.findOne({
+        email,
+      });
+      if (!productionCompany) {
+        res.status(404).json({ error: "User not found", code: 404 });
+        return;
+      }
+
+      // Compare passwords
+      const passwordMatch = await bcrypt.compare(
+        password,
+        productionCompany.password
+      );
+
+      if (!passwordMatch) {
+        res.status(200).json({ error: "Invalid password", code: 401 });
+        return;
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: productionCompany.id },
+        process.env.JWT || "demo"
+      );
+
+      // Create session
+      const newSession = await Session.create({
+        userId: productionCompany.id,
+        accessToken: token,
+      });
+
+      if (newSession) {
+        res.status(200).json({
+          user: productionCompany,
+          accessToken: token,
+          isProduction: true,
+          code: 200,
+        });
+      } else {
+        throw new Error("Failed to create session");
+      }
+
       return;
     }
 
@@ -99,7 +141,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (newSession) {
-      res.status(200).json({ user, accessToken: token });
+      res.status(200).json({ user, accessToken: token, isProduction: false });
     } else {
       throw new Error("Failed to create session");
     }
@@ -145,6 +187,12 @@ export const followUser = async (req: any, res: Response): Promise<void> => {
       return;
     }
 
+    const exitingVideo: any = await VideoModel.findById(videoId);
+    if (!exitingVideo) {
+      res.status(400).json({ error: "Video not found" });
+      return;
+    }
+
     const FollowerVideo: any = await FollowerModel.find({
       videoId: videoId,
     });
@@ -156,6 +204,9 @@ export const followUser = async (req: any, res: Response): Promise<void> => {
         user: [userId],
       });
       await newFollower.save();
+
+      exitingVideo.followerCount = FollowerVideo[0]?.user_id.length;
+      await exitingVideo.save();
       res.status(200).json({ message: "Followed", newFollower });
       return;
     }
@@ -166,12 +217,18 @@ export const followUser = async (req: any, res: Response): Promise<void> => {
         (id: string) => id !== userId
       );
       await FollowerVideo[0].save();
-      res.status(200).json({ error: "Already followed", FollowerVideo });
+
+      exitingVideo.followerCount = FollowerVideo[0].user_id.length;
+      await exitingVideo.save();
+      res.status(200).json({ message: "Unfollowed", FollowerVideo });
       return;
     }
 
     FollowerVideo[0].user_id.push(userId);
     await FollowerVideo[0].save();
+
+    exitingVideo.followerCount = FollowerVideo[0].user_id.length;
+    await exitingVideo.save();
 
     res.status(200).json({ message: "Followed", FollowerVideo });
   } catch (error: any) {
@@ -187,7 +244,36 @@ export const getFollowers = async (req: any, res: Response): Promise<void> => {
     const followers = await FollowerModel.find({
       videoId: video_id,
     });
-    res.status(200).json({ followers });
+
+    const distinctFollowers = [
+      ...new Set(followers.map((follower) => follower.user_id)),
+    ];
+    const count = distinctFollowers.length;
+
+    res.status(200).json({ followers, count });
+  } catch (error: any) {
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const getFollowerByUserId = async (req: any, res: Response) => {
+  try {
+    const userId = req.userId;
+    const followers = await FollowerModel.find({
+      user_id: userId,
+    });
+
+    if (followers.length === 0) {
+      res.status(200).json({ followers, count: 0 });
+      return;
+    }
+
+    const distinctFollowers = [
+      ...new Set(followers.map((follower) => follower.user_id)),
+    ];
+    const count = distinctFollowers.length;
+
+    res.status(200).json({ followers, count });
   } catch (error: any) {
     res.status(500).json({ error: "Something went wrong!" });
   }
@@ -199,14 +285,23 @@ export const getUserById = async (
 ): Promise<void> => {
   try {
     const { user_id } = req.params;
-    const user = await User.findById(user_id);
+    const user = await User.findById(user_id).populate("membershipId");
     if (!user) {
-      res.status(404).json({ error: "User not found" });
+      const existingProductionCompany = await ProductionCompany.findById(
+        user_id
+      );
+
+      if (!existingProductionCompany) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+      res.status(200).json({ user: existingProductionCompany });
       return;
     }
 
     res.status(200).json({ user });
   } catch (error: any) {
+    console.log(error, "error");
     res.status(500).json({ error: "Something went wrong!" });
   }
 };
@@ -266,13 +361,33 @@ export const updateUser = async (req: any, res: Response): Promise<void> => {
 export const CreateProductionCompany = async (req: any, res: Response) => {
   try {
     const logo = req.files["logo"][0].location;
+    const exitingUser = await User.findOne({
+      email: req.body.email,
+    });
+
+    if (exitingUser) {
+      res.status(400).json({ error: "User already exists" });
+      return;
+    }
+
+    const existingProductionCompany = await ProductionCompany.findOne({
+      email: req.body.email,
+    });
+
+    if (existingProductionCompany) {
+      res.status(400).json({ error: "User already exists" });
+      return;
+    }
+
+    const password = await bcrypt.hash(req.body.password, 10);
+
     const newProductionCompany = await ProductionCompany.create({
       name: req.body.name,
       founderName: req.body.founderName,
       about: req.body.about,
       email: req.body.email,
       contactNumber: req.body.contactNumber,
-      password: req.body.password,
+      password: password,
       logo: logo,
     });
 
@@ -292,13 +407,11 @@ export const CreateProductionCompany = async (req: any, res: Response) => {
     });
 
     if (newSession) {
-      res
-        .status(201)
-        .json({
-          accessToken: token,
-          message: "User created",
-          userId: newProductionCompany.id,
-        });
+      res.status(201).json({
+        accessToken: token,
+        message: "User created",
+        userId: newProductionCompany.id,
+      });
     } else {
       throw new Error("Failed to create session");
     }
@@ -334,23 +447,21 @@ export const getProductionCompanyById = async (req: Request, res: Response) => {
 // PUT for upload and change production company logo or any other details
 export const updateProductionCompany = async (req: any, res: Response) => {
   try {
-    const productionCompany = await ProductionCompany.findById(
-      req.params.user_id
-    );
+    const productionCompany = await ProductionCompany.findById(req.userId);
 
     if (!productionCompany) {
       return res.status(404).json({ error: "Production company not found" });
     }
 
-    if (req.files["logo"]) {
-      const logo = req.files["logo"][0].location;
-      productionCompany.logo = logo;
-    }
+    // if (req.files["logo"]) {
+    //   const logo = req.files["logo"][0].location;
+    //   productionCompany.logo = logo;
+    // }
 
-    if (req.files["backgroundImage"]) {
-      const backgroundImage = req.files["backgroundImage"][0].location;
-      productionCompany.backgroundImage = backgroundImage;
-    }
+    // if (req.files["backgroundImage"]) {
+    //   const backgroundImage = req.files["backgroundImage"][0].location;
+    //   productionCompany.backgroundImage = backgroundImage;
+    // }
 
     if (req.body.name) {
       productionCompany.name = req.body.name;
@@ -374,6 +485,10 @@ export const updateProductionCompany = async (req: any, res: Response) => {
 
     if (req.body.password) {
       productionCompany.password = req.body.password;
+    }
+
+    if (req.body.socialMedia) {
+      productionCompany.socialMedia = req.body.socialMedia;
     }
 
     await productionCompany.save();

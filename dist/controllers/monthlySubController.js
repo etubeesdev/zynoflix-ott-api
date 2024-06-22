@@ -17,7 +17,7 @@ const membership_model_1 = __importDefault(require("../model/membership.model"))
 const user_model_1 = require("../model/user.model");
 const Razorpay = require("razorpay");
 const monthlySub = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { amount, currency } = req.body;
+    const { amount, currency, membershipType } = req.body;
     const razorpayInstance = new Razorpay({
         key_id: process.env.PAY_KEY_ID,
         key_secret: process.env.PAY_KEY_SECRET,
@@ -35,6 +35,7 @@ const monthlySub = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             amount: options.amount,
             transactionId: orderRazo.id,
             order: orderRazo,
+            membershipType,
         });
         yield order.save();
         const user = yield user_model_1.User.findById(req.userId);
@@ -98,9 +99,15 @@ exports.updateMonthlySub = updateMonthlySub;
 const uploadVideoCount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user_id = req.userId;
-        const order = yield membership_model_1.default.findOne({ userId: user_id });
+        const order = yield membership_model_1.default.findById(req.params.id);
         if (!order) {
             res.status(400).json({ error: "No order found!" });
+            return;
+        }
+        if (order.user_id !== user_id) {
+            res
+                .status(400)
+                .json({ error: "You are not authorized to update this order!" });
             return;
         }
         if (order.paymentStatus !== "success") {

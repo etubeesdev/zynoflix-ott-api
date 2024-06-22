@@ -5,7 +5,7 @@ import { IUserProfile, User } from "../model/user.model";
 const Razorpay = require("razorpay");
 
 export const monthlySub = async (req: any, res: Response) => {
-  const { amount, currency } = req.body;
+  const { amount, currency, membershipType } = req.body;
 
   const razorpayInstance = new Razorpay({
     key_id: process.env.PAY_KEY_ID,
@@ -27,6 +27,7 @@ export const monthlySub = async (req: any, res: Response) => {
       amount: options.amount,
       transactionId: orderRazo.id,
       order: orderRazo,
+      membershipType,
     });
     await order.save();
 
@@ -96,12 +97,20 @@ export const updateMonthlySub = async (req: any, res: Response) => {
 export const uploadVideoCount = async (req: any, res: Response) => {
   try {
     const user_id = req.userId;
-    const order: any = await MembershipModel.findOne({ userId: user_id });
+    const order: any = await MembershipModel.findById(req.params.id);
 
     if (!order) {
       res.status(400).json({ error: "No order found!" });
       return;
     }
+
+    if (order.user_id !== user_id) {
+      res
+        .status(400)
+        .json({ error: "You are not authorized to update this order!" });
+      return;
+    }
+
     if (order.paymentStatus !== "success") {
       res.status(400).json({ error: "Payment not done!" });
       return;

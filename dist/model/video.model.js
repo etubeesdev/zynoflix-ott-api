@@ -37,6 +37,10 @@ const videoSchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "user_profile",
     },
+    followerCount: {
+        type: Number,
+        default: 0,
+    },
     certification: {
         type: String,
         default: "U",

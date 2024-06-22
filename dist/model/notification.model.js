@@ -23,30 +23,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductionCompany = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const ProductionCompanySchema = new mongoose_1.Schema({
-    name: { type: String, required: true },
-    founderName: { type: String },
-    about: { type: String },
-    email: { type: String, required: true },
-    contactNumber: { type: String },
-    password: { type: String },
-    logo: { type: String },
-    backgroundImage: {
-        type: String,
-        default: "https://via.placeholder.com/150",
-    },
-    membership: { type: String, default: "free" },
-    isMembership: { type: Boolean, default: false },
-    is_active: { type: Boolean, default: true },
-    socialMedia: {
-        facebook: { type: String },
-        twitter: { type: String },
-        instagram: { type: String },
-        youtube: { type: String },
-    },
+const NotificationSchema = new mongoose_1.Schema({
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+    isViewed: { type: Boolean, default: false },
+    sender: { type: String, required: true },
+    receiver: { type: String, required: true },
+    user: { type: mongoose_1.Types.ObjectId, ref: "user_profile" },
+    sent: { type: Boolean, default: false },
 }, {
     timestamps: true,
 });
-exports.ProductionCompany = mongoose_1.default.model("ProductionCompany", ProductionCompanySchema);
+exports.default = mongoose_1.default.model("Notification", NotificationSchema);

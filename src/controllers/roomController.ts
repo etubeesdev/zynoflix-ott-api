@@ -8,7 +8,7 @@ export const getRoom = async (req: any, res: Response) => {
     const userId = req.userId;
     const rooms = await RoomModel.find({
       userIds: { $in: [userId] },
-    });
+    }).sort({ updatedAt: -1 });
 
     if (!rooms) {
       return res.status(404).json({ message: "Room not found" });

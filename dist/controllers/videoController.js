@@ -420,11 +420,7 @@ exports.postVideoLike = postVideoLike;
 //GET Like as per user_id
 const getLikes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user_id = req.userId;
         const video_id = req.params.video_id;
-        if (!user_id) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
         const like = yield like_model_1.default.find({ video_id });
         res.status(200).json({ like });
     }

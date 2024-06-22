@@ -11,6 +11,8 @@ import {
   getProductionCompanyById,
   updateUser,
   CreateProductionCompany,
+  getFollowerByUserId,
+  updateProductionCompany,
 } from "../controllers/userController";
 import {
   BannerVideoFromAdmin,
@@ -44,6 +46,14 @@ import {
   getMessageById,
   getRoom,
 } from "../controllers/roomController";
+import {
+  CreateComment,
+  getCommentByVideoId,
+} from "../controllers/commentController";
+import {
+  GetNotification,
+  SendNotification,
+} from "../controllers/notificationController";
 
 const router = express.Router();
 
@@ -64,16 +74,17 @@ router.put("/auth/user/:user_id", cpUpdateUser, updateUser);
 // Production User
 const cpUploadUser = upload.fields([{ name: "logo", maxCount: 1 }]);
 const cpUploadBackground = upload.fields([
-  { name: "backgroundImage", maxCount: 1 },
   { name: "logo", maxCount: 1 },
+  { name: "backgroundImage", maxCount: 1 },
 ]);
 router.post("/auth/production/signup", cpUploadUser, CreateProductionCompany);
 router.get("/auth/production/user", getProductCompany);
 router.get("/auth/production/user/:user_id", getProductionCompanyById);
 router.put(
-  "/auth/production/user/:user_id",
+  "/auth/production/user",
+  authMiddleware,
   cpUploadBackground,
-  getProductionCompanyById
+  updateProductionCompany
 );
 
 // upload video
@@ -106,7 +117,7 @@ router.get("/video/banner", BannerVideoFromAdmin);
 // router.post("/video/view/:video_id", postVideoViews);
 router.post("/video/view/:video_id", authMiddleware, postVideoViews);
 router.post("/video/like/:video_id", authMiddleware, postVideoLike);
-router.get("/video/like/:video_id", authMiddleware, getLikes);
+router.get("/video/like/:video_id", getLikes);
 
 // Payment
 router.post("/payment", authMiddleware, monthlySub);
@@ -117,6 +128,7 @@ router.put("/payment/video/:id", authMiddleware, uploadVideoCount);
 // Follower
 router.post("/follow/:user_id", authMiddleware, followUser);
 router.get("/followers/:video_id", getFollowers);
+router.get("/followers", authMiddleware, getFollowerByUserId);
 
 // Ads
 const cpUploadAds = upload.fields([{ name: "ads_video", maxCount: 1 }]);
@@ -132,7 +144,15 @@ router.get("/watch-later", authMiddleware, getWatchLater);
 router.get("/chat", getRoom);
 router.get("/chat/:roomId", getRoom);
 router.get("/message/:roomId", getMessageById);
-
 router.post("/room", createRoom);
+
+// Comment
+router.post("/comment/:video_id", authMiddleware, CreateComment);
+router.get("/comment/:video_id", getCommentByVideoId);
+
+//notification
+
+router.post("/notification", authMiddleware, SendNotification);
+router.get("/notification", authMiddleware, GetNotification);
 
 export default router;

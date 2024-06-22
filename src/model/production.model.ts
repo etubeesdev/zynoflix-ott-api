@@ -12,6 +12,12 @@ export interface IProductionCompany extends Document {
   isMembership?: boolean;
   membership?: string;
   is_active: boolean;
+  socialMedia?: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +38,12 @@ const ProductionCompanySchema: Schema = new Schema(
     membership: { type: String, default: "free" },
     isMembership: { type: Boolean, default: false },
     is_active: { type: Boolean, default: true },
+    socialMedia: {
+      facebook: { type: String },
+      twitter: { type: String },
+      instagram: { type: String },
+      youtube: { type: String },
+    },
   },
   {
     timestamps: true,

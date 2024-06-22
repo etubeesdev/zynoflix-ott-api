@@ -466,11 +466,7 @@ export const postVideoLike = async (req: any, res: Response) => {
 //GET Like as per user_id
 export const getLikes = async (req: any, res: Response) => {
   try {
-    const user_id = req.userId;
     const video_id = req.params.video_id;
-    if (!user_id) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
 
     const like = await LikeModel.find({ video_id });
     res.status(200).json({ like });

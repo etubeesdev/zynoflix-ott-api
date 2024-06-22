@@ -12,6 +12,8 @@ const monthlySubController_1 = require("../controllers/monthlySubController");
 const adsController_1 = require("../controllers/adsController");
 const watchController_1 = require("../controllers/watchController");
 const roomController_1 = require("../controllers/roomController");
+const commentController_1 = require("../controllers/commentController");
+const notificationController_1 = require("../controllers/notificationController");
 const router = express_1.default.Router();
 // User
 router.get("/auth/user", userController_1.allUsers);
@@ -27,13 +29,13 @@ router.put("/auth/user/:user_id", cpUpdateUser, userController_1.updateUser);
 // Production User
 const cpUploadUser = s3_1.upload.fields([{ name: "logo", maxCount: 1 }]);
 const cpUploadBackground = s3_1.upload.fields([
-    { name: "backgroundImage", maxCount: 1 },
     { name: "logo", maxCount: 1 },
+    { name: "backgroundImage", maxCount: 1 },
 ]);
 router.post("/auth/production/signup", cpUploadUser, userController_1.CreateProductionCompany);
 router.get("/auth/production/user", userController_1.getProductCompany);
 router.get("/auth/production/user/:user_id", userController_1.getProductionCompanyById);
-router.put("/auth/production/user/:user_id", cpUploadBackground, userController_1.getProductionCompanyById);
+router.put("/auth/production/user", findUserMiddleware_1.authMiddleware, cpUploadBackground, userController_1.updateProductionCompany);
 // upload video
 const cpUpload = s3_1.upload.fields([
     { name: "preview_video", maxCount: 1 },
@@ -61,7 +63,7 @@ router.get("/video/banner", videoController_1.BannerVideoFromAdmin);
 // router.post("/video/view/:video_id", postVideoViews);
 router.post("/video/view/:video_id", findUserMiddleware_1.authMiddleware, videoController_1.postVideoViews);
 router.post("/video/like/:video_id", findUserMiddleware_1.authMiddleware, videoController_1.postVideoLike);
-router.get("/video/like/:video_id", findUserMiddleware_1.authMiddleware, videoController_1.getLikes);
+router.get("/video/like/:video_id", videoController_1.getLikes);
 // Payment
 router.post("/payment", findUserMiddleware_1.authMiddleware, monthlySubController_1.monthlySub);
 router.get("/payment", findUserMiddleware_1.authMiddleware, monthlySubController_1.getMonthlySub);
@@ -70,6 +72,7 @@ router.put("/payment/video/:id", findUserMiddleware_1.authMiddleware, monthlySub
 // Follower
 router.post("/follow/:user_id", findUserMiddleware_1.authMiddleware, userController_1.followUser);
 router.get("/followers/:video_id", userController_1.getFollowers);
+router.get("/followers", findUserMiddleware_1.authMiddleware, userController_1.getFollowerByUserId);
 // Ads
 const cpUploadAds = s3_1.upload.fields([{ name: "ads_video", maxCount: 1 }]);
 router.post("/ads", cpUploadAds, adsController_1.createAds);
@@ -83,4 +86,10 @@ router.get("/chat", roomController_1.getRoom);
 router.get("/chat/:roomId", roomController_1.getRoom);
 router.get("/message/:roomId", roomController_1.getMessageById);
 router.post("/room", roomController_1.createRoom);
+// Comment
+router.post("/comment/:video_id", findUserMiddleware_1.authMiddleware, commentController_1.CreateComment);
+router.get("/comment/:video_id", commentController_1.getCommentByVideoId);
+//notification
+router.post("/notification", findUserMiddleware_1.authMiddleware, notificationController_1.SendNotification);
+router.get("/notification", findUserMiddleware_1.authMiddleware, notificationController_1.GetNotification);
 exports.default = router;

@@ -45,7 +45,7 @@ const UserProfileSchema = new mongoose_1.Schema({
     following: Number,
     membership: { type: String, default: "free" },
     isMembership: { type: Boolean, default: false },
-    membershipId: { type: mongoose_1.Schema.Types.ObjectId, ref: "membership" },
+    membershipId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Membership" },
     is_active: { type: Boolean, default: true },
 }, { timestamps: true });
 const User = mongoose_1.default.model("user_profile", UserProfileSchema);

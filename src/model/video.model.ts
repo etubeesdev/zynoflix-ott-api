@@ -9,6 +9,7 @@ export interface IVideo extends Document {
   views?: number;
   language?: [string];
   status?: boolean;
+  followerCount?: number;
   duration?: string;
   likes?: number;
   user?: Types.ObjectId;
@@ -37,6 +38,11 @@ const videoSchema: Schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "user_profile",
     },
+    followerCount: {
+      type: Number,
+      default: 0,
+    },
+
     certification: {
       type: String,
       default: "U",

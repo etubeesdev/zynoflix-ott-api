@@ -23,30 +23,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductionCompany = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const ProductionCompanySchema = new mongoose_1.Schema({
-    name: { type: String, required: true },
-    founderName: { type: String },
-    about: { type: String },
-    email: { type: String, required: true },
-    contactNumber: { type: String },
-    password: { type: String },
-    logo: { type: String },
-    backgroundImage: {
-        type: String,
-        default: "https://via.placeholder.com/150",
+const commentSchema = new mongoose_1.Schema({
+    userId: { type: String, required: true },
+    videoId: { type: String, required: true },
+    user: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "user_profile",
     },
-    membership: { type: String, default: "free" },
-    isMembership: { type: Boolean, default: false },
-    is_active: { type: Boolean, default: true },
-    socialMedia: {
-        facebook: { type: String },
-        twitter: { type: String },
-        instagram: { type: String },
-        youtube: { type: String },
-    },
+    content: { type: String, required: true },
 }, {
     timestamps: true,
 });
-exports.ProductionCompany = mongoose_1.default.model("ProductionCompany", ProductionCompanySchema);
+const CommentModel = mongoose_1.default.model("Comment", commentSchema);
+exports.default = CommentModel;

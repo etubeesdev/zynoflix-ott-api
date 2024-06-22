@@ -38,7 +38,7 @@ const UserProfileSchema = new Schema<IUserProfile>(
     following: Number,
     membership: { type: String, default: "free" },
     isMembership: { type: Boolean, default: false },
-    membershipId: { type: Schema.Types.ObjectId, ref: "membership" },
+    membershipId: { type: Schema.Types.ObjectId, ref: "Membership" },
     is_active: { type: Boolean, default: true },
   },
   { timestamps: true }
