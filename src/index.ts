@@ -35,6 +35,9 @@ app.use(
       "http://localhost:3000",
       "http://13.200.249.153:3000",
       "http://zynoflixott.com",
+      "http://www.zynoflixott.com",
+      "http://zynoflixott.com:3000",
+      "http://www.zynoflixott.com:3000",
     ],
     credentials: true,
   })
