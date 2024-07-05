@@ -19,6 +19,9 @@ const io = new Server(httpServer, {
       "https://www.zynoflixott.com",
       "http://zynoflixott.com",
       "http://www.zynoflixott.com",
+      "https://chat.zynoflixott.com",
+      "http://chat.zynoflixott.com",
+      "https://zynoflixott.com/",
     ],
   },
 });
