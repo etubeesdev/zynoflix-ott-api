@@ -32,6 +32,16 @@ const resizeAndCompressImage = async (imageBuffer: any, options: any) => {
     .toBuffer();
 };
 
+export const SearchVideo = async (req: Request, res: Response) => {
+  try {
+  } catch (error) {
+    console.log(error);
+    res.json({
+      error: "somthing went wrong !",
+    });
+  }
+};
+
 // Route : /create_videos
 export const Createvideos = async (req: any, res: Response) => {
   try {
@@ -228,6 +238,14 @@ export const findVideoByUserId = async (req: any, res: Response) => {
 export const bannerVideo = async (req: Request, res: Response) => {
   try {
     const quary = req.query.quary;
+
+    if (quary === "all") {
+      const video = await VideoModel.find({});
+      return res
+        .status(200)
+        .json({ video, message: "Banner Video", status: 200 });
+    }
+
     if (quary) {
       const searchQuery = req.query.search;
       const video = await VideoModel.find({
@@ -238,7 +256,6 @@ export const bannerVideo = async (req: Request, res: Response) => {
           { language: { $regex: searchQuery, $options: "i" } },
           { created_by_name: { $regex: searchQuery, $options: "i" } },
         ],
-        is_banner_video: true,
       });
       return res
         .status(200)

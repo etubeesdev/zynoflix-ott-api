@@ -27,15 +27,6 @@ export default class MessageController extends BaseController {
         return;
       }
 
-      const newRoom = new RoomModel({
-        roomId,
-        userId,
-        user: userId,
-        name,
-        capacity: 1,
-      });
-
-      await newRoom.save();
       skt.emit("get-user", { roomId, isOnline: true, userId });
     } catch (error) {
       console.error("Error saving message:", error);

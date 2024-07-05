@@ -6,15 +6,26 @@ import { randomUUID } from "crypto";
 export const getRoom = async (req: any, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
     const rooms = await RoomModel.find({
-      userIds: { $in: [userId] },
+      userId: { $in: [userId] },
     }).sort({ updatedAt: -1 });
 
     if (!rooms) {
       return res.status(404).json({ message: "Room not found" });
     }
+    const showonlyUserIdhasuserId = rooms.map((room) => {
+      return room.userId.map((id) => {
+        if (id === userId) {
+          return room;
+        }
+      });
+    });
 
-    return res.status(200).json(rooms);
+    return res.status(200).json(showonlyUserIdhasuserId.map((room) => room[0]));
   } catch (error) {
     console.error("Error getting room:", error);
     return res.status(500).json({ message: "Internal server error" });

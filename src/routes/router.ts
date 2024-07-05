@@ -141,17 +141,16 @@ router.post("/watch-later/:video_id", authMiddleware, watchLater);
 router.get("/watch-later", authMiddleware, getWatchLater);
 
 // Chat
-router.get("/chat", getRoom);
-router.get("/chat/:roomId", getRoom);
-router.get("/message/:roomId", getMessageById);
-router.post("/room", createRoom);
+router.get("/chat", authMiddleware, getRoom);
+router.get("/chat/:roomId", authMiddleware, getRoom);
+router.get("/message/:roomId", authMiddleware, getMessageById);
+router.post("/room", authMiddleware, createRoom);
 
 // Comment
 router.post("/comment/:video_id", authMiddleware, CreateComment);
 router.get("/comment/:video_id", getCommentByVideoId);
 
 //notification
-
 router.post("/notification", authMiddleware, SendNotification);
 router.get("/notification", authMiddleware, GetNotification);
 
