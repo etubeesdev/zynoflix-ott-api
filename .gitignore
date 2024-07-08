@@ -41,3 +41,4 @@ next-env.d.ts
 
 # Ignore all .env files in the root of a project
 .env
+
