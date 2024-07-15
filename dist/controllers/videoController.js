@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCategories = exports.getLikes = exports.postVideoLike = exports.postVideoViews = exports.trendingVideos = exports.BannerVideoFromAdmin = exports.addBannerVideo = exports.searchVideo = exports.findVideoByLanguage = exports.activeBanner = exports.findVideoByCategory = exports.bannerVideo = exports.findVideoByUserId = exports.findVideoById = exports.allVideos = exports.CreateBannervideos = exports.Createvideos = void 0;
+exports.getCategories = exports.getLikes = exports.postVideoLike = exports.postVideoViews = exports.trendingVideos = exports.BannerVideoFromAdmin = exports.addBannerVideo = exports.searchVideo = exports.findVideoByLanguage = exports.activeBanner = exports.findVideoByCategory = exports.bannerVideo = exports.findVideoByUserId = exports.findVideoById = exports.allVideos = exports.CreateBannervideos = exports.Createvideos = exports.SearchVideo = void 0;
 const uuid_1 = require("uuid");
 const sharp = require("sharp");
 const video_model_1 = __importDefault(require("../model/video.model"));
@@ -41,6 +41,17 @@ const resizeAndCompressImage = (imageBuffer, options) => __awaiter(void 0, void 
         .jpeg(options.jpeg)
         .toBuffer();
 });
+const SearchVideo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+    }
+    catch (error) {
+        console.log(error);
+        res.json({
+            error: "somthing went wrong !",
+        });
+    }
+});
+exports.SearchVideo = SearchVideo;
 // Route : /create_videos
 const Createvideos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -198,6 +209,12 @@ exports.findVideoByUserId = findVideoByUserId;
 const bannerVideo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const quary = req.query.quary;
+        if (quary === "all") {
+            const video = yield video_model_1.default.find({});
+            return res
+                .status(200)
+                .json({ video, message: "Banner Video", status: 200 });
+        }
         if (quary) {
             const searchQuery = req.query.search;
             const video = yield video_model_1.default.find({
@@ -208,7 +225,6 @@ const bannerVideo = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                     { language: { $regex: searchQuery, $options: "i" } },
                     { created_by_name: { $regex: searchQuery, $options: "i" } },
                 ],
-                is_banner_video: true,
             });
             return res
                 .status(200)

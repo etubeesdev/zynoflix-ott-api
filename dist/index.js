@@ -29,6 +29,12 @@ app.use((0, cors_1.default)({
         "http://13.200.249.153",
         "http://localhost:3000",
         "http://13.200.249.153:3000",
+        "http://zynoflixott.com",
+        "http://www.zynoflixott.com",
+        "http://zynoflixott.com:3000",
+        "http://www.zynoflixott.com:3000",
+        "https://zynoflixott.com",
+        "https://www.zynoflixott.com",
     ],
     credentials: true,
 }));

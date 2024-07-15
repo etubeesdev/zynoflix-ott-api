@@ -19,13 +19,23 @@ const crypto_1 = require("crypto");
 const getRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.userId;
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
         const rooms = yield room_model_1.default.find({
-            userIds: { $in: [userId] },
+            userId: { $in: [userId] },
         }).sort({ updatedAt: -1 });
         if (!rooms) {
             return res.status(404).json({ message: "Room not found" });
         }
-        return res.status(200).json(rooms);
+        const showonlyUserIdhasuserId = rooms.map((room) => {
+            return room.userId.map((id) => {
+                if (id === userId) {
+                    return room;
+                }
+            });
+        });
+        return res.status(200).json(showonlyUserIdhasuserId.map((room) => room[0]));
     }
     catch (error) {
         console.error("Error getting room:", error);

@@ -13,7 +13,20 @@ const PORT = process.env.PORT || 3003;
 const httpServer = http_1.default.createServer(chat);
 const io = new socket_io_1.Server(httpServer, {
     cors: {
-        origin: ["http://localhost:3000", "*", "http://localhost:3000/chat"],
+        origin: [
+            "http://localhost:3000",
+            "*",
+            "http://localhost:3000/chat",
+            "zynoflixott.com",
+            "www.zynoflixott.com",
+            "https://zynoflixott.com",
+            "https://www.zynoflixott.com",
+            "http://zynoflixott.com",
+            "http://www.zynoflixott.com",
+            "https://chat.zynoflixott.com",
+            "http://chat.zynoflixott.com",
+            "https://zynoflixott.com/",
+        ],
     },
 });
 const Chat = () => {

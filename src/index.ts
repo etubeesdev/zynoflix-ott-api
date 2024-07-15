@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import routor from "./routes/router";
 import Chat from "./Chat";
+import bodyParser from "body-parser";
 dotenv.config();
 
 const MONGODB_URI =
@@ -55,6 +56,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
+app.use(bodyParser.json());
 app.use("/api", routor);
 
 app.listen(port, () => {

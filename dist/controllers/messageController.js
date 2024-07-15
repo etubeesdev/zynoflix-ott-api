@@ -37,14 +37,6 @@ class MessageController extends BaseController_1.default {
                     skt.emit("get-user", { roomId, isOnline: true, userId });
                     return;
                 }
-                const newRoom = new room_model_1.default({
-                    roomId,
-                    userId,
-                    user: userId,
-                    name,
-                    capacity: 1,
-                });
-                yield newRoom.save();
                 skt.emit("get-user", { roomId, isOnline: true, userId });
             }
             catch (error) {

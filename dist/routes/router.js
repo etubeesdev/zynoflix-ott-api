@@ -82,10 +82,10 @@ router.put("/ads/active/:id", adsController_1.activeAds);
 router.post("/watch-later/:video_id", findUserMiddleware_1.authMiddleware, watchController_1.watchLater);
 router.get("/watch-later", findUserMiddleware_1.authMiddleware, watchController_1.getWatchLater);
 // Chat
-router.get("/chat", roomController_1.getRoom);
-router.get("/chat/:roomId", roomController_1.getRoom);
-router.get("/message/:roomId", roomController_1.getMessageById);
-router.post("/room", roomController_1.createRoom);
+router.get("/chat", findUserMiddleware_1.authMiddleware, roomController_1.getRoom);
+router.get("/chat/:roomId", findUserMiddleware_1.authMiddleware, roomController_1.getRoom);
+router.get("/message/:roomId", findUserMiddleware_1.authMiddleware, roomController_1.getMessageById);
+router.post("/room", findUserMiddleware_1.authMiddleware, roomController_1.createRoom);
 // Comment
 router.post("/comment/:video_id", findUserMiddleware_1.authMiddleware, commentController_1.CreateComment);
 router.get("/comment/:video_id", commentController_1.getCommentByVideoId);
