@@ -41,6 +41,8 @@ app.use(
       "http://www.zynoflixott.com:3000",
       "https://zynoflixott.com",
       "https://www.zynoflixott.com",
+      "http://localhost:3001",
+      "https://zynoflixott-web.vercel.app/",
     ],
     credentials: true,
   })
