@@ -60,7 +60,8 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "22200000mb" })); // Adjust the limit as needed
+app.use(bodyParser.urlencoded({ limit: "522222222222220mb", extended: true }));
 app.use("/api", routor);
 
 app.listen(port, () => {
