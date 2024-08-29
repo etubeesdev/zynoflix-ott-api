@@ -57,6 +57,7 @@ export const Createvideos = async (req: any, res: Response) => {
       created_by_id,
       created_by_name,
     } = req.body;
+    console.log(req.files);
 
     // Assuming thumbnail, preview_video, and orginal_video are available in req.files
     const thumbnail = req.files["thumbnail"][0].location;
@@ -415,6 +416,8 @@ export const postVideoViews = async (req: any, res: Response) => {
 // POST add Like to video
 export const postVideoLike = async (req: any, res: Response) => {
   try {
+    console.log(req.params);
+
     const video_id = req.params.video_id;
     const userId = req.userId;
 
@@ -447,6 +450,8 @@ export const postVideoLike = async (req: any, res: Response) => {
       videoData.likes += 1;
       videoData.likesId.push(newLike._id);
       await videoData.save();
+
+      console.log("Like added");
 
       return res.status(200).json({ message: "Like added", videoData });
     }
@@ -559,6 +564,54 @@ const categories: Category[] = [
 export const getCategories = async (req: Request, res: Response) => {
   try {
     res.status(200).json({ categories });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const rateVideo = async (req: any, res: Response) => {
+  const videoId = req.params.video_id;
+  const userId = req.userId;
+  const rating = req.body.rating;
+  const video = await VideoModel.findById(videoId);
+
+  if (!video) {
+    console.log("Video not found");
+    return res.status(404).json({ error: "Video not found" });
+  }
+
+  // Check if the user has already rated the video
+  const existingRating = video.ratings?.find(
+    (r) => r.userId.toString() === userId
+  );
+
+  if (existingRating) {
+    // Update existing rating
+    existingRating.rating = rating;
+  } else {
+    // Add new rating
+    video.ratings?.push({ userId: userId, rating });
+  }
+
+  // Recalculate average rating
+  const totalRatings =
+    video.ratings?.reduce((acc, r) => acc + r.rating, 0) || 0;
+  const ratingCount = video.ratings?.length || 1;
+  video.averageRating = totalRatings / ratingCount;
+
+  await video.save();
+
+  res.status(200).json({ video });
+};
+
+// get rating as per video
+export const getRating = async (req: any, res: Response) => {
+  try {
+    const video_id = req.params.video_id;
+
+    const video = await VideoModel.findById(video_id);
+    res.status(200).json({ video, rating: video?.averageRating });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ error: "Something went wrong!" });

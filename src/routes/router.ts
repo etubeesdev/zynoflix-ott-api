@@ -13,6 +13,9 @@ import {
   CreateProductionCompany,
   getFollowerByUserId,
   updateProductionCompany,
+  createTvOsAuth,
+  verifyTvOsAuth,
+  getByIdTvOsAuth,
 } from "../controllers/userController";
 import {
   BannerVideoFromAdmin,
@@ -27,8 +30,10 @@ import {
   findVideoByUserId,
   getCategories,
   getLikes,
+  getRating,
   postVideoLike,
   postVideoViews,
+  rateVideo,
   searchVideo,
 } from "../controllers/videoController";
 import { upload } from "../service/db/s3/s3";
@@ -63,6 +68,10 @@ router.get("/auth/user/:user_id", getUserById);
 router.post("/auth/signup", createUser);
 router.post("/auth/login", loginUser);
 router.get("/auth/logout", logoutUser);
+
+router.post("/auth/tvos/otp", createTvOsAuth);
+router.post("/auth/tvos/verify", verifyTvOsAuth);
+router.get("/auth/verify/:uuid", getByIdTvOsAuth);
 
 const cpUpdateUser = upload.fields([
   { name: "profilePic", maxCount: 1 },
@@ -153,5 +162,9 @@ router.get("/comment/:video_id", getCommentByVideoId);
 //notification
 router.post("/notification", authMiddleware, SendNotification);
 router.get("/notification", authMiddleware, GetNotification);
+
+//rating
+router.post("/rating/:video_id", authMiddleware, rateVideo);
+router.get("/rating/:video_id", authMiddleware, getRating);
 
 export default router;

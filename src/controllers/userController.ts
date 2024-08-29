@@ -6,7 +6,9 @@ import { Session } from "../model/token.model";
 import FollowerModel from "../model/follower.model";
 import { ProductionCompany } from "../model/production.model";
 import VideoModel from "../model/video.model";
+import TvOsModel from "../model/tvOs.model";
 
+import { v4 as uuidv4 } from "uuid";
 export const allUsers = (req: Request, res: Response): void => {
   try {
     const users = User.find({});
@@ -496,6 +498,97 @@ export const updateProductionCompany = async (req: any, res: Response) => {
     res.status(200).json({ productionCompany });
   } catch (error: any) {
     console.log(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const createTvOsAuth = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const uuid = uuidv4();
+    // Create a new TvOs entry with the generated OTP
+    const newTvOs = await TvOsModel.create({
+      uuid,
+      accessToken: "sdsd",
+      username: "tvOsuser",
+      userId: "sdsd",
+      role: "user",
+      otp,
+    });
+
+    // Respond with the created TvOs entry
+    res.status(201).json({ tvOs: newTvOs });
+  } catch (error) {
+    console.error("Error creating TvOs auth:", error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const verifyTvOsAuth = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { otp, userId } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    // Find TvOs entry by UUID
+    const tvOs = await TvOsModel.findOne({ otp });
+    if (!tvOs) {
+      res.status(404).json({ error: "TvOs not found" });
+      return;
+    }
+
+    // Check if the provided OTP matches the TvOs entry
+    if (tvOs.otp !== otp) {
+      res.status(400).json({ error: "Invalid OTP" });
+      return;
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: userId },
+      process.env.JWT_SECRET || "demo",
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    // Update the TvOs entry with the generated JWT token
+    tvOs.accessToken = token;
+    tvOs.success = true;
+    tvOs.username = user.full_name;
+    tvOs.role = "user";
+    tvOs.userId = userId;
+    await tvOs.save();
+
+    // Respond with the TvOs entry
+    res.status(200).json({ tvOs });
+  } catch (error) {
+    console.error("Error verifying TvOs auth:", error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const getByIdTvOsAuth = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { uuid } = req.params;
+  try {
+    const tvOs = await TvOsModel.find({ uuid });
+    res.status(200).json({ tvOs });
+  } catch (error) {
+    console.error("Error getting TvOs auth:", error);
     res.status(500).json({ error: "Something went wrong!" });
   }
 };

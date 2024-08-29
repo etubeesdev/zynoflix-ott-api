@@ -22,6 +22,8 @@ export interface IVideo extends Document {
   created_by_id: string;
   created_by_name: string;
   processedImages?: object;
+  averageRating?: number; // New field for average rating
+  ratings?: { userId: Types.ObjectId; rating: number }[]; // New field for user ratings
 }
 
 const videoSchema: Schema = new Schema(
@@ -42,7 +44,6 @@ const videoSchema: Schema = new Schema(
       type: Number,
       default: 0,
     },
-
     certification: {
       type: String,
       default: "U",
@@ -105,6 +106,23 @@ const videoSchema: Schema = new Schema(
       type: Object,
       default: {},
     },
+    averageRating: {
+      type: Number,
+      default: 0, // Default average rating is 0
+    },
+    ratings: [
+      {
+        userId: {
+          type: Schema.Types.ObjectId,
+          ref: "user_profile",
+          required: true,
+        },
+        rating: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
