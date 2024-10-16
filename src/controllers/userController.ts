@@ -391,6 +391,7 @@ export const CreateProductionCompany = async (req: any, res: Response) => {
       contactNumber: req.body.contactNumber,
       password: password,
       logo: logo,
+      profile_type: req.body.profile_type,
     });
 
     // Generate JWT token
@@ -426,7 +427,25 @@ export const CreateProductionCompany = async (req: any, res: Response) => {
 export const getProductCompany = async (req: Request, res: Response) => {
   try {
     const productionCompany = await ProductionCompany.find({});
-    res.status(200).json({ productionCompany });
+    const filterByProfileType = productionCompany.filter(
+      (company) => company.profile_type === "production"
+    );
+
+    res.status(200).json({ productionCompany: filterByProfileType });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+export const getDirectorsCompany = async (req: Request, res: Response) => {
+  try {
+    const productionCompany = await ProductionCompany.find({});
+    const filterByProfileType = productionCompany.filter(
+      (company) => company.profile_type === "directors"
+    );
+
+    res.status(200).json({ productionCompany: filterByProfileType });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ error: "Something went wrong!" });

@@ -16,6 +16,7 @@ import {
   createTvOsAuth,
   verifyTvOsAuth,
   getByIdTvOsAuth,
+  getDirectorsCompany,
 } from "../controllers/userController";
 import {
   BannerVideoFromAdmin,
@@ -88,6 +89,7 @@ const cpUploadBackground = upload.fields([
 ]);
 router.post("/auth/production/signup", cpUploadUser, CreateProductionCompany);
 router.get("/auth/production/user", getProductCompany);
+router.get("/auth/director/user", getDirectorsCompany);
 router.get("/auth/production/user/:user_id", getProductionCompanyById);
 router.put(
   "/auth/production/user",

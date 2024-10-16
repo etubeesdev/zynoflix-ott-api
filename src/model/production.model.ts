@@ -12,6 +12,8 @@ export interface IProductionCompany extends Document {
   isMembership?: boolean;
   membership?: string;
   is_active: boolean;
+  // enum
+  profile_type?: string;
   socialMedia?: {
     facebook?: string;
     twitter?: string;
@@ -31,6 +33,11 @@ const ProductionCompanySchema: Schema = new Schema(
     contactNumber: { type: String },
     password: { type: String },
     logo: { type: String },
+    profile_type: {
+      type: String,
+      enum: ["production", "directors"],
+      default: "production",
+    },
     backgroundImage: {
       type: String,
       default: "https://via.placeholder.com/150",
