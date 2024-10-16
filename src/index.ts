@@ -45,6 +45,7 @@ app.use(
       "http://localhost:3001",
       "https://zynoflixott-web.vercel.app",
       "https://2a9e-203-192-241-134.ngrok-free.app",
+      "https://zynoflixott.com",
     ],
     credentials: true,
   })
