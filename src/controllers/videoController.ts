@@ -59,6 +59,11 @@ export const Createvideos = async (req: any, res: Response) => {
     } = req.body;
     console.log(req.files);
 
+    const exitingsVideo = await VideoModel.find({ title: title });
+    if (exitingsVideo.length > 0) {
+      return res.status(400).json({ error: "Video already exists" });
+    }
+
     // Assuming thumbnail, preview_video, and orginal_video are available in req.files
     const thumbnail = req.files["thumbnail"][0].location;
     const preview_video = req.files["preview_video"][0].location;
@@ -610,8 +615,8 @@ export const getRating = async (req: any, res: Response) => {
   try {
     const video_id = req.params.video_id;
 
-    const video = await VideoModel.findById(video_id);
-    res.status(200).json({ video, rating: video?.averageRating });
+    const video: any = await VideoModel.findById(video_id);
+    res.status(200).json({ video, rating: video?.ratings?.length });
   } catch (error: any) {
     console.log(error);
     res.status(500).json({ error: "Something went wrong!" });
