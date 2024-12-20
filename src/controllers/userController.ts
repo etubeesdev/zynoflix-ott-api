@@ -59,7 +59,14 @@ export const createUser = async (
     });
 
     if (newSession) {
-      res.status(201).json({ accessToken: token, message: "User created" });
+      res.status(201).json({
+        accessToken: token,
+        message: "User created",
+        user: {
+          _id: newUser._id,
+        },
+        isProduction: "user",
+      });
     } else {
       throw new Error("Failed to create session");
     }
